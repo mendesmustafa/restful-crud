@@ -16,14 +16,6 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    //getAllProduct
-    //getById
-    //getByName
-    //updateProduct
-    //deleteProduct
-    //saveProduct
-    //saveProducts
-
     public List<Product> getAllProduct(){
         return productRepository.findAll();
     }
