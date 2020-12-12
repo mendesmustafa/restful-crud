@@ -10,37 +10,43 @@ import java.util.List;
 /**
  * Created by mendesmustafa on 06.10.2020.
  */
+
 @Service
 public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
 
-    public List<Product> getAllProduct(){
+    public List<Product> getAll() {
         return productRepository.findAll();
     }
-    public Product getById(Long id){
+
+    public Product getById(Long id) {
         return productRepository.findById(id).orElse(null);
     }
-    public Product getByName(String name){
+
+    public Product getByName(String name) {
         return productRepository.findByName(name);
     }
-    public Product updateProduct(Product product){
+
+    public Product update(Product product) {
         Product product1 = productRepository.findById(product.getId()).orElse(null);
         product1.setName(product.getName());
         product1.setQuantity(product.getQuantity());
         product1.setPrice(product.getPrice());
         return productRepository.save(product1);
-
     }
-    public String deleteProduct(Long id){
+
+    public String delete(Long id) {
         productRepository.deleteById(id);
         return "Product deleted" + id;
     }
-    public Product saveProduct(Product product){
+
+    public Product save(Product product) {
         return productRepository.save(product);
     }
-    public List<Product> saveProducts(List<Product> products){
+
+    public List<Product> saveList(List<Product> products) {
         return productRepository.saveAll(products);
     }
 }

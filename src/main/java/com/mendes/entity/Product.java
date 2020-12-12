@@ -9,6 +9,7 @@ import javax.persistence.*;
 /**
  * Created by mendesmustafa on 06.10.2020.
  */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,8 +20,11 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "NAME")
     private String name;
+    @Column(name = "QUANTITY")
     private int quantity;
+    @Column(name = "PRICE")
     private double price;
 
     public Long getId() {
