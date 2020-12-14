@@ -45,17 +45,15 @@ public class ProductTest {
 
     @Test
     public void create() {
-        firstProduct = productService.save(firstProduct);
-        assertNotNull(firstProduct.getId());
+        Product firstResult = productService.save(firstProduct);
+        assertNotNull(firstResult.getId());
     }
 
     @Test
     public void update() {
         Product firstResult = productService.save(firstProduct);
         secondProduct.setId(firstResult.getId());
-
         Product secondResult = productService.update(secondProduct);
-
         assertAll(
                 () -> assertEquals(firstResult.getId(), secondResult.getId()),
                 () -> assertNotEquals(firstResult.getName(), secondResult.getName()),
@@ -66,31 +64,30 @@ public class ProductTest {
 
     @Test
     public void findById() {
-        firstProduct = productService.save(firstProduct);
-        Product firstResult = productService.getById(firstProduct.getId());
-
+        Product firstResult = productService.save(firstProduct);
+        Product secondResult = productService.getById(firstResult.getId());
         assertAll(
-                () -> assertNotNull(firstResult),
-                () -> assertEquals(firstProduct.getId(), firstResult.getId()),
-                () -> assertEquals(firstProduct.getName(), firstResult.getName()),
-                () -> assertEquals(firstProduct.getQuantity(), firstResult.getQuantity()),
-                () -> assertEquals(firstProduct.getPrice(), firstResult.getPrice())
+                () -> assertNotNull(secondResult),
+                () -> assertEquals(firstResult.getId(), secondResult.getId()),
+                () -> assertEquals(firstResult.getName(), secondResult.getName()),
+                () -> assertEquals(firstResult.getQuantity(), secondResult.getQuantity()),
+                () -> assertEquals(firstResult.getPrice(), secondResult.getPrice())
         );
     }
 
     @Test
     public void delete() {
-        firstProduct = productService.save(firstProduct);
-        productService.delete(firstProduct.getId());
-        Product firstResult = productService.getById(firstProduct.getId());
-        assertNull(firstResult);
+        Product firstResult = productService.save(firstProduct);
+        productService.delete(firstResult.getId());
+        Product secondResult = productService.getById(firstResult.getId());
+        assertNull(secondResult);
     }
 
     @Test
     public void findByName() {
-        firstProduct = productService.save(firstProduct);
-        Product firstResult = productService.getByName(firstProduct.getName());
-        assertNotNull(firstResult);
-        assertEquals(firstProduct.getName(), firstResult.getName());
+        Product firstResult = productService.save(firstProduct);
+        Product secondResult = productService.getByName(firstResult.getName());
+        assertNotNull(secondResult);
+        assertEquals(firstResult.getName(), secondResult.getName());
     }
 }
