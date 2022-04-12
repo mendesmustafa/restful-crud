@@ -1,8 +1,9 @@
 package com.mendes.controller;
 
-import com.mendes.entity.Product;
+import com.mendes.entity.ProductDto;
 import com.mendes.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,29 +14,29 @@ import java.util.List;
 
 @RestController
 @RequestMapping("product")
+@RequiredArgsConstructor
 public class ProductControl {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
     @GetMapping("/list")
-    public List<Product> getAll() {
-        return productService.getAll();
+    public ResponseEntity<List<ProductDto>> getAll() {
+        return ResponseEntity.ok(productService.getAll());
     }
 
     @GetMapping("/{id}")
-    public Product getById(@PathVariable("id") Long id) {
-        return productService.getById(id);
+    public ResponseEntity<ProductDto> getById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(productService.getById(id));
     }
 
-    @GetMapping("/name/{name}")
-    public Product getByName(@PathVariable("name") String name) {
-        return productService.getByName(name);
+    @GetMapping("/name")
+    public ResponseEntity<List<ProductDto>> getByName(@RequestParam("name") String name) {
+        return ResponseEntity.ok(productService.getByName(name));
     }
 
     @PutMapping("/update")
-    public Product update(@RequestBody Product product) {
-        return productService.update(product);
+    public ResponseEntity<ProductDto> update(@RequestBody ProductDto productDto) {
+        return ResponseEntity.ok(productService.update(productDto));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -44,12 +45,12 @@ public class ProductControl {
     }
 
     @PostMapping("/save")
-    public Product save(@RequestBody Product product) {
-        return productService.save(product);
+    public ResponseEntity<ProductDto> save(@RequestBody ProductDto productDto) {
+        return ResponseEntity.ok(productService.save(productDto));
     }
 
     @PostMapping("/save/list")
-    public List<Product> saveList(@RequestBody List<Product> products) {
-        return productService.saveList(products);
+    public ResponseEntity<List<ProductDto>> saveList(@RequestBody List<ProductDto> productDtos) {
+        return ResponseEntity.ok(productService.saveList(productDtos));
     }
 }

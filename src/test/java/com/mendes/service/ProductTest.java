@@ -1,10 +1,14 @@
 package com.mendes.service;
 
-import com.mendes.entity.Product;
+import com.mendes.entity.ProductDto;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,47 +17,52 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 @SpringBootTest
-public class ProductTest {
+class ProductTest {
 
-    private final static String FIRST_NAME = "ali";
-    private final static int FIRST_QUANTITY = 3;
-    private final static double FIRST_PRICE = 2500.99;
+    private final static String FIRST_NAME = "FIRST-NAME-TEST";
+    private final static int FIRST_QUANTITY = 1;
+    private final static double FIRST_PRICE = 111.11;
 
-    private final static String SECOND_NAME = "ahmet";
-    private final static int SECOND_QUANTITY = 5;
-    private final static double SECOND_PRICE = 3999.99;
+    private final static String SECOND_NAME = "SECOND-NAME-TEST";
+    private final static int SECOND_QUANTITY = 2;
+    private final static double SECOND_PRICE = 222.22;
 
-    Product firstProduct;
-    Product secondProduct;
+    ProductDto firstProductDto;
+    ProductDto secondProductDto;
+    ProductDto firstResult;
+    ProductDto secondResult;
 
     @Autowired
-    ProductService productService;
+    private ProductService productService;
 
     @BeforeEach
     public void setUp() {
+        firstProductDto = new ProductDto(FIRST_NAME, FIRST_QUANTITY, FIRST_PRICE);
+        secondProductDto = new ProductDto(SECOND_NAME, SECOND_QUANTITY, SECOND_PRICE);
+    }
 
-        firstProduct = new Product();
-        firstProduct.setName(FIRST_NAME);
-        firstProduct.setQuantity(FIRST_QUANTITY);
-        firstProduct.setPrice(FIRST_PRICE);
-
-        secondProduct = new Product();
-        secondProduct.setName(SECOND_NAME);
-        secondProduct.setQuantity(SECOND_QUANTITY);
-        secondProduct.setPrice(SECOND_PRICE);
+    @AfterEach
+    public void clear() {
+        if (firstResult != null && firstResult.getId() != null) {
+            productService.delete(firstResult.getId());
+        }
+        if (secondResult != null && secondResult.getId() != null) {
+            productService.delete(secondResult.getId());
+        }
     }
 
     @Test
-    public void create() {
-        Product firstResult = productService.save(firstProduct);
+    void create() {
+        firstResult = productService.save(firstProductDto);
+        assertEquals(1, firstResult.getId());
+    }
+
+    @Test
+    void update() {
+        firstResult = productService.save(firstProductDto);
         assertNotNull(firstResult.getId());
-    }
-
-    @Test
-    public void update() {
-        Product firstResult = productService.save(firstProduct);
-        secondProduct.setId(firstResult.getId());
-        Product secondResult = productService.update(secondProduct);
+        secondProductDto.setId(firstResult.getId());
+        ProductDto secondResult = productService.update(secondProductDto);
         assertAll(
                 () -> assertEquals(firstResult.getId(), secondResult.getId()),
                 () -> assertNotEquals(firstResult.getName(), secondResult.getName()),
@@ -63,9 +72,10 @@ public class ProductTest {
     }
 
     @Test
-    public void findById() {
-        Product firstResult = productService.save(firstProduct);
-        Product secondResult = productService.getById(firstResult.getId());
+    void findById() {
+        firstResult = productService.save(firstProductDto);
+        assertNotNull(firstResult.getId());
+        ProductDto secondResult = productService.getById(firstResult.getId());
         assertAll(
                 () -> assertNotNull(secondResult),
                 () -> assertEquals(firstResult.getId(), secondResult.getId()),
@@ -76,18 +86,40 @@ public class ProductTest {
     }
 
     @Test
-    public void delete() {
-        Product firstResult = productService.save(firstProduct);
+    void delete() {
+        firstResult = productService.save(firstProductDto);
+        assertNotNull(firstResult.getId());
         productService.delete(firstResult.getId());
-        Product secondResult = productService.getById(firstResult.getId());
+        ProductDto secondResult = productService.getById(firstResult.getId());
         assertNull(secondResult);
     }
 
     @Test
-    public void findByName() {
-        Product firstResult = productService.save(firstProduct);
-        Product secondResult = productService.getByName(firstResult.getName());
-        assertNotNull(secondResult);
-        assertEquals(firstResult.getName(), secondResult.getName());
+    void findByName() {
+        firstResult = productService.save(firstProductDto);
+        assertNotNull(firstResult.getId());
+        List<ProductDto> list = productService.getByName(firstProductDto.getName());
+        assertEquals(list.get(0).getName(), firstResult.getName());
+    }
+
+    @Test
+    void getAll() {
+        firstResult = productService.save(firstProductDto);
+        assertNotNull(firstResult.getId());
+        List<ProductDto> list = productService.getAll();
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void createList() {
+        firstResult = productService.save(firstProductDto);
+        assertNotNull(firstResult.getId());
+        secondResult = productService.save(secondProductDto);
+        assertNotNull(secondResult.getId());
+        List<ProductDto> list = new ArrayList<>();
+        list.add(firstResult);
+        list.add(secondResult);
+        List<ProductDto> resultList = productService.saveList(list);
+        assertEquals(2, resultList.size());
     }
 }

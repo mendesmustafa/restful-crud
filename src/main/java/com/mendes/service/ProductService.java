@@ -1,51 +1,109 @@
 package com.mendes.service;
 
 import com.mendes.entity.Product;
+import com.mendes.entity.ProductDto;
 import com.mendes.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by mendesmustafa on 06.10.2020.
  */
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
-    public List<Product> getAll() {
-        return productRepository.findAll();
+    public List<ProductDto> getAll() {
+        List<ProductDto> productDtos = new ArrayList<>();
+        productRepository.findAll().forEach(product -> {
+            ProductDto productDto = new ProductDto();
+            convertToProductDto(product, productDto);
+            productDtos.add(productDto);
+        });
+        return productDtos;
     }
 
-    public Product getById(Long id) {
-        return productRepository.findById(id).orElse(null);
+    public ProductDto getById(Long id) {
+        ProductDto productDto = new ProductDto();
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isPresent()) {
+            convertToProductDto(product.get(), productDto);
+            return productDto;
+        }
+        return null;
+
     }
 
-    public Product getByName(String name) {
-        return productRepository.findByName(name);
+    public List<ProductDto> getByName(String name) {
+        List<ProductDto> productDtos = new ArrayList<>();
+        List<Product> products = productRepository.findByName(name);
+        products.forEach(product -> {
+            ProductDto productDto = new ProductDto();
+            convertToProductDto(product, productDto);
+            productDtos.add(productDto);
+        });
+        return productDtos;
     }
 
-    public Product update(Product product) {
-        Product product1 = productRepository.findById(product.getId()).orElse(null);
-        product1.setName(product.getName());
-        product1.setQuantity(product.getQuantity());
-        product1.setPrice(product.getPrice());
-        return productRepository.save(product1);
+    private void convertToProductDto(Product product, ProductDto productDto) {
+        productDto.setId(product.getId());
+        productDto.setName(product.getName());
+        productDto.setQuantity(product.getQuantity());
+        productDto.setPrice(product.getPrice());
+    }
+
+    public ProductDto update(ProductDto productDto) {
+        Optional<Product> product = productRepository.findById(productDto.getId());
+        if (product.isPresent()) {
+            product.get().setName(productDto.getName());
+            product.get().setQuantity(productDto.getQuantity());
+            product.get().setPrice(productDto.getPrice());
+            productRepository.save(product.get());
+            productDto.setId(product.get().getId());
+            return productDto;
+        }
+        return null;
     }
 
     public void delete(Long id) {
-        productRepository.deleteById(id);
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isPresent()) {
+            productRepository.deleteById(id);
+        }
     }
 
-    public Product save(Product product) {
-        return productRepository.save(product);
+    public ProductDto save(ProductDto productDto) {
+        Product product = convertToProduct(productDto);
+        productRepository.save(product);
+        productDto.setId(product.getId());
+        return productDto;
     }
 
-    public List<Product> saveList(List<Product> products) {
-        return productRepository.saveAll(products);
+    public List<ProductDto> saveList(List<ProductDto> productDtos) {
+        List<Product> products = new ArrayList<>();
+        productDtos.forEach(productDto -> {
+            Product product = convertToProduct(productDto);
+            products.add(product);
+        });
+        productRepository.saveAll(products);
+        for (int i = 0; i < products.size(); i++) {
+            productDtos.get(i).setId(products.get(i).getId());
+        }
+        return productDtos;
+    }
+
+    private Product convertToProduct(ProductDto productDto) {
+        Product product = new Product();
+        product.setName(productDto.getName());
+        product.setQuantity(productDto.getQuantity());
+        product.setPrice(productDto.getPrice());
+        return product;
     }
 }
